@@ -103,15 +103,42 @@ void function betterhudMain(var speedRui, var ammoRui){
                 setAlpha(ammoRui, settingsAmmocounter.alpha * (1 - zoomFrac))
             }
 
-            int currAmmo = activeWeapon.GetWeaponPrimaryClipCount()
-            int maxAmmo = activeWeapon.GetWeaponPrimaryClipCountMax()
+            // debug
+            printl("type: " + activeWeapon.GetWeaponType())
+            
+
+            float currAmmo
+            float maxAmmo
+
+            // ammo color change
+            if( activeWeapon.GetWeaponPrimaryClipCount() == 0 && activeWeapon.GetWeaponPrimaryClipCountMax() == 0){ // is chargeable
+                // THIS DOESNT WORK BEACUSE BOTH METHODS RETURN 0
+                //currAmmo = float(activeWeapon.GetWeaponChargeLevel())
+                //maxAmmo = float(activeWeapon.GetWeaponChargeLevelMax())
+                //printl("CHARGE WEAPON")
+                //printl("curr chrg: " + activeWeapon.GetWeaponChargeLevel())
+                //printl("max chrg: " + activeWeapon.GetWeaponChargeLevelMax())
+                //RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
+
+                setAlpha(ammoRui) // hide whem chargerifle till fixed
+            }
+            else{ // has bullets
+                printl("NORMAL WEAPON")
+                currAmmo = float(activeWeapon.GetWeaponPrimaryClipCount())
+                maxAmmo = float(activeWeapon.GetWeaponPrimaryClipCountMax())
+                RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
+            }
+            
             string ammoCountStr = currAmmo + " / " + maxAmmo
             // draw ammo count
             RuiSetString(ammoRui, "msgText", ammoCountStr)
             
             
-            // Healt bar
+            /* Healt bar */
             //TODO
+            // GetMaxHealth()
+            // GetHealthFrac(player)
+
         }
         else{
             setAlpha(speedRui)
