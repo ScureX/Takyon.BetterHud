@@ -103,10 +103,6 @@ void function betterhudMain(var speedRui, var ammoRui){
                 setAlpha(ammoRui, settingsAmmocounter.alpha * (1 - zoomFrac))
             }
 
-            // debug
-            printl("type: " + activeWeapon.GetWeaponType())
-            
-
             float currAmmo
             float maxAmmo
 
@@ -123,7 +119,6 @@ void function betterhudMain(var speedRui, var ammoRui){
                 setAlpha(ammoRui) // hide whem chargerifle till fixed
             }
             else{ // has bullets
-                printl("NORMAL WEAPON")
                 currAmmo = float(activeWeapon.GetWeaponPrimaryClipCount())
                 maxAmmo = float(activeWeapon.GetWeaponPrimaryClipCountMax())
                 RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
