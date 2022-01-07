@@ -114,13 +114,15 @@ void function betterhudMain(var speedRui, var ammoRui){
                 RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
                 ammoCountStr =  int(currAmmo*100) + "%"
             }
-            else{ // has bullet
+            else if(activeWeapon.GetWeaponPrimaryClipCountMax() > 0){ // is bullet // BAD FIX TODO
                 currAmmo = float(activeWeapon.GetWeaponPrimaryClipCount())
                 maxAmmo = float(activeWeapon.GetWeaponPrimaryClipCountMax())
                 RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
                 ammoCountStr = currAmmo + " / " + maxAmmo
             }
-            
+            else { // melee
+                ammoCountStr = "MELEE"
+            }
             
             // draw ammo count
             RuiSetString(ammoRui, "msgText", ammoCountStr)
