@@ -1,23 +1,29 @@
 global function betterhudPrecache
 
+// vector position = Vector(0.4, 0.55, 0.0)
+// vector position = Vector(0.525, 0.55, 0.0)
 struct{
     bool usesMetric = true //true: uses kph; false: uses mph
     bool colorFade = true // true: text color is red when you are slow and green when you are fast; false: static color which you can set below
-    vector position = Vector(0.4, 0.55, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
-    vector colour = Vector(1.0, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
+    vector position = Vector(0.0, 0.5, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
+    vector color = Vector(1.0, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
-    float size = 50.0 //size of the text
+    float size = 250.0 //size of the text
 } settingsSpeedometer
 
 struct{
     bool colorFade = true // true: text color is red when you are slow and green when you are fast; false: static color which you can set below
-    vector position = Vector(0.525, 0.55, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
+    vector position = Vector(0.5, 0.5, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
     // For some reason ammo position is only 1/4th as far from the center as speedometer position. keep this in mind when aligning 
-
-    vector colour = Vector(1.0, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
+    vector color = Vector(1.0, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
-    float size = 50.0 //size of the text
+    float size = 250.0 //size of the text
 } settingsAmmocounter
+
+struct{
+    vector color = Vector(0, 0.47, 1.0)
+    float alpha = 0.17
+} settingsHud
 
 void function betterhudPrecache(){
     thread betterhudInit()
@@ -25,8 +31,38 @@ void function betterhudPrecache(){
 
 void function betterhudInit(){
     WaitFrame()
+
+    // Hud
+    float scale = 0.3
+    var customTopoS = RuiTopology_CreateSphere( 
+        COCKPIT_RUI_OFFSET - <0, -34, 20>, // POSITION | in screen,?, z
+        <0, -1, 0>, // ?, ?, left side down right side up
+        <0, -0.15, -1>, // ?, bottom left top right, ?
+        COCKPIT_RUI_RADIUS, 
+        COCKPIT_RUI_WIDTH*scale, 
+        COCKPIT_RUI_HEIGHT*(scale/2), 
+        COCKPIT_RUI_SUBDIV*8 
+    )
+    var hudRui = RuiCreate( $"ui/basic_image.rpak", customTopoS, RUI_DRAW_COCKPIT, 10 )
+    hudInit(hudRui)
+
     // Speedometer
-    var speedRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", clGlobal.topoCockpitHudPermanent, RUI_DRAW_COCKPIT, -1 )
+    var speedRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", customTopoS, RUI_DRAW_COCKPIT, 9 )
+    speedometerInit(speedRui)
+    
+    // Ammocounter
+    var ammoRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", customTopoS, RUI_DRAW_COCKPIT, 9 )
+    ammoCounterInit(ammoRui)
+
+    thread betterhudMain(speedRui, ammoRui)
+}
+
+void function hudInit(var hudRui){
+    RuiSetFloat3( hudRui, "basicImageColor", settingsHud.color) 
+    RuiSetFloat( hudRui, "basicImageAlpha", settingsHud.alpha)
+}
+
+void function speedometerInit(var speedRui){
     RuiSetInt(speedRui, "maxLines", 1)
 	RuiSetInt(speedRui, "lineNum", 1)
 	RuiSetFloat2(speedRui, "msgPos", settingsSpeedometer.position)
@@ -34,10 +70,10 @@ void function betterhudInit(){
 	RuiSetFloat(speedRui, "msgFontSize", settingsSpeedometer.size)
 	RuiSetFloat(speedRui, "msgAlpha", settingsSpeedometer.alpha)
 	RuiSetFloat(speedRui, "thicken", 0.0)
-	RuiSetFloat3(speedRui, "msgColor", settingsSpeedometer.colour)
-    
-    // Ammocounter
-    var ammoRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", clGlobal.topoCockpitHudPermanent, RUI_DRAW_COCKPIT, -1 )
+	RuiSetFloat3(speedRui, "msgColor", settingsSpeedometer.color)
+}
+
+void function ammoCounterInit(var ammoRui){
     RuiSetInt(ammoRui, "maxLines", 1)
 	RuiSetInt(ammoRui, "lineNum", 1)
 	RuiSetFloat2(ammoRui, "msgPos", settingsAmmocounter.position)
@@ -45,9 +81,7 @@ void function betterhudInit(){
 	RuiSetFloat(ammoRui, "msgFontSize", settingsAmmocounter.size)
 	RuiSetFloat(ammoRui, "msgAlpha", settingsAmmocounter.alpha)
 	RuiSetFloat(ammoRui, "thicken", 0.0)
-	RuiSetFloat3(ammoRui, "msgColor", settingsAmmocounter.colour)
-
-    thread betterhudMain(speedRui, ammoRui)
+	RuiSetFloat3(ammoRui, "msgColor", settingsAmmocounter.color)
 }
 
 void function betterhudMain(var speedRui, var ammoRui){
