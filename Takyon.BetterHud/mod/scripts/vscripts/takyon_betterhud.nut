@@ -21,7 +21,7 @@ struct{
 } settingsAmmocounter
 
 struct{
-    vector color = Vector(0, 0.47, 1.0)
+    vector color = Vector(0.5, 0.5, 0.5) // (0, 0.47, 1.0) // maybe grey?
     float alpha = 0.17
 } settingsHud
 
@@ -43,7 +43,7 @@ void function betterhudInit(){
         COCKPIT_RUI_HEIGHT*(scale/2), 
         COCKPIT_RUI_SUBDIV*8 
     )
-    var hudRui = RuiCreate( $"ui/basic_image.rpak", customTopoS, RUI_DRAW_COCKPIT, 10 )
+    var hudRui = RuiCreate( $"ui/basic_image.rpak", customTopoS, RUI_DRAW_COCKPIT, 8 )
     hudInit(hudRui)
 
     // Speedometer
@@ -54,7 +54,7 @@ void function betterhudInit(){
     var ammoRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", customTopoS, RUI_DRAW_COCKPIT, 9 )
     ammoCounterInit(ammoRui)
 
-    thread betterhudMain(speedRui, ammoRui)
+    thread betterhudMain(speedRui, ammoRui, hudRui)
 }
 
 void function hudInit(var hudRui){
@@ -84,7 +84,7 @@ void function ammoCounterInit(var ammoRui){
 	RuiSetFloat3(ammoRui, "msgColor", settingsAmmocounter.color)
 }
 
-void function betterhudMain(var speedRui, var ammoRui){
+void function betterhudMain(var speedRui, var ammoRui, var hudRui){
     while(true){
         WaitFrame()
         if(!IsLobby()){
@@ -96,10 +96,12 @@ void function betterhudMain(var speedRui, var ammoRui){
             if(!IsAlive(player)){
                 setAlpha(speedRui)
                 setAlpha(ammoRui)
+                RuiSetFloat(hudRui, "basicImageAlpha", 0.0)
                 continue
             } else{
                 setAlpha(speedRui, settingsSpeedometer.alpha)
                 setAlpha(ammoRui, settingsAmmocounter.alpha)
+                RuiSetFloat(hudRui, "basicImageAlpha", settingsHud.alpha)
             }
 
             /*  Speedometer  */
@@ -135,6 +137,7 @@ void function betterhudMain(var speedRui, var ammoRui){
             if(zoomFrac > 0){
                 setAlpha(speedRui, settingsSpeedometer.alpha * (1 - zoomFrac))
                 setAlpha(ammoRui, settingsAmmocounter.alpha * (1 - zoomFrac))
+                RuiSetFloat(hudRui, "basicImageAlpha", settingsHud.alpha * (1 - zoomFrac))
             }
 
             float currAmmo
@@ -169,6 +172,7 @@ void function betterhudMain(var speedRui, var ammoRui){
         else{
             setAlpha(speedRui)
             setAlpha(ammoRui)
+            RuiSetFloat(hudRui, "basicImageAlpha", 0.0)
         }
     }
 }
