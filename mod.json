@@ -1,0 +1,17 @@
+{
+	"Name": "Takyon.BetterHud",
+	"Description": "that cool lookin hud thing",
+	"LoadPriority": 2,
+	"RequiredOnClient": false,
+	"Version": "2.0.0-pre-alpha",
+	
+	"Scripts": [
+		{
+			"Path": "takyon_betterhud.nut",
+			"RunOn": "CLIENT",
+			"ClientCallback": {
+				"After": "betterhudPrecache"
+			}
+		}
+	]
+}
