@@ -90,6 +90,17 @@ void function betterhudInit(){
     var nameHudRui = RuiCreate( $"ui/basic_image.rpak", nameHudTopo, RUI_DRAW_COCKPIT, 8 )
     nameHudInit(nameHudRui)
 
+    // Text topology // this is so the text isnt slanted. if you want slanted text change the textTopo to hudTopo when creating rui below
+    var textTopo = RuiTopology_CreateSphere( 
+        COCKPIT_RUI_OFFSET - <0, settingsHud.positionHorizontal, settingsHud.positionVertical>, // POSITION | in screen, left/right, up/down
+        <0, -1, 0>, // ?, ?, left side down right side up
+        <0, 0, -1>, // ?, bottom left top right, ?
+        COCKPIT_RUI_RADIUS, 
+        COCKPIT_RUI_WIDTH*settingsHud.hudScale, 
+        COCKPIT_RUI_HEIGHT*(settingsHud.hudScale/2), 
+        COCKPIT_RUI_SUBDIV*8 
+    )
+
     // Speedometer
     var speedRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 )
     speedometerInit(speedRui)
