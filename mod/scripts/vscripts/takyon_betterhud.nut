@@ -8,25 +8,31 @@ struct{
     bool usesMetric = true //true: uses kph; false: uses mph
     bool colorFade = true // true: text color is red when you are slow and green when you are fast; false: static color which you can set below
     vector position = Vector(0 - 0.03, 0.5, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
+    vector straightPosition = Vector(0.0, 0.10, 0.0)
     vector color = Vector(1.0, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
     float size = 250.0 //size of the text
+    float straightSize = 200.0 // size of text when textTopo is used
 } settingsSpeedometer
 
 struct{
     bool colorFade = true // true: text color is red when you are slow and green when you are fast; false: static color which you can set below
     vector position = Vector(0.5, 0.5, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
     // For some reason ammo position is only 1/4th as far from the center as speedometer position. keep this in mind when aligning 
-    vector color = Vector(1.0, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
+    vector straightPosition = Vector(0.5, 0.10, 0.0)
+    vector color = Vector(1.2, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
     float size = 250.0 //size of the text
+    float straightSize = 200.0 // size of text when textTopo is used
 } settingsAmmocounter
 
 struct{
-    vector position = Vector(0.04, 0 - 0.05, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
     vector color = Vector(1.0, 1.0, 1.0) //standard rgb format, range: min - 0.0 to max - 1.0
+    vector position = Vector(0.04, 0 - 0.05, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
+    vector straightPosition = Vector(0.02, 0 - 0.12, 0.0)
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
     float size = 150.0 //size of the text
+    float straightSize = 120.0 // size of text when textTopo is used
 } settingsWeaponName
 
 struct{
@@ -92,25 +98,25 @@ void function betterhudInit(){
 
     // Text topology // this is so the text isnt slanted. if you want slanted text change the textTopo to hudTopo when creating rui below
     var textTopo = RuiTopology_CreateSphere( 
-        COCKPIT_RUI_OFFSET - <0, settingsHud.positionHorizontal, settingsHud.positionVertical>, // POSITION | in screen, left/right, up/down
+        COCKPIT_RUI_OFFSET - <0, settingsHud.positionHorizontal, settingsHud.positionVertical+10>, // POSITION | in screen, left/right, up/down
         <0, -1, 0>, // ?, ?, left side down right side up
         <0, 0, -1>, // ?, bottom left top right, ?
         COCKPIT_RUI_RADIUS, 
         COCKPIT_RUI_WIDTH*settingsHud.hudScale, 
-        COCKPIT_RUI_HEIGHT*(settingsHud.hudScale/2), 
+        COCKPIT_RUI_HEIGHT*(settingsHud.hudScale), 
         COCKPIT_RUI_SUBDIV*8 
     )
 
     // Speedometer
-    var speedRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 )
+    var speedRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
     speedometerInit(speedRui)
     
     // Ammocounter
-    var ammoRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 )
+    var ammoRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
     ammoCounterInit(ammoRui)
 
     // WeaponName
-    var weaponNameRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 )
+    var weaponNameRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
     weaponNameInit(weaponNameRui)
 
     thread betterhudMain(speedRui, ammoRui, hudRui, weaponNameRui, nameHudRui)
@@ -133,9 +139,9 @@ void function nameHudInit(var nameHudRui){
 void function speedometerInit(var speedRui){
     RuiSetInt(speedRui, "maxLines", 1)
 	RuiSetInt(speedRui, "lineNum", 1)
-	RuiSetFloat2(speedRui, "msgPos", settingsSpeedometer.position)
+	RuiSetFloat2(speedRui, "msgPos", settingsSpeedometer.position) // can be straight
 	RuiSetString(speedRui, "msgText", "speed")
-	RuiSetFloat(speedRui, "msgFontSize", settingsSpeedometer.size)
+	RuiSetFloat(speedRui, "msgFontSize", settingsSpeedometer.size) // can be straight
 	RuiSetFloat(speedRui, "msgAlpha", settingsSpeedometer.alpha)
 	RuiSetFloat(speedRui, "thicken", 0.0)
 	RuiSetFloat3(speedRui, "msgColor", settingsSpeedometer.color)
@@ -144,9 +150,9 @@ void function speedometerInit(var speedRui){
 void function ammoCounterInit(var ammoRui){
     RuiSetInt(ammoRui, "maxLines", 1)
 	RuiSetInt(ammoRui, "lineNum", 1)
-	RuiSetFloat2(ammoRui, "msgPos", settingsAmmocounter.position)
+	RuiSetFloat2(ammoRui, "msgPos", settingsAmmocounter.position) // can be straight
 	RuiSetString(ammoRui, "msgText", "ammo")
-	RuiSetFloat(ammoRui, "msgFontSize", settingsAmmocounter.size)
+	RuiSetFloat(ammoRui, "msgFontSize", settingsAmmocounter.size) // can be straight
 	RuiSetFloat(ammoRui, "msgAlpha", settingsAmmocounter.alpha)
 	RuiSetFloat(ammoRui, "thicken", 0.0)
 	RuiSetFloat3(ammoRui, "msgColor", settingsAmmocounter.color)
@@ -155,9 +161,9 @@ void function ammoCounterInit(var ammoRui){
 void function weaponNameInit(var weaponNameRui){
     RuiSetInt(weaponNameRui, "maxLines", 1)
 	RuiSetInt(weaponNameRui, "lineNum", 1)
-	RuiSetFloat2(weaponNameRui, "msgPos", settingsWeaponName.position)
+	RuiSetFloat2(weaponNameRui, "msgPos", settingsWeaponName.position) // can be straight
 	RuiSetString(weaponNameRui, "msgText", "name")
-	RuiSetFloat(weaponNameRui, "msgFontSize", settingsWeaponName.size)
+	RuiSetFloat(weaponNameRui, "msgFontSize", settingsWeaponName.size) // can be straight
 	RuiSetFloat(weaponNameRui, "msgAlpha", settingsWeaponName.alpha)
 	RuiSetFloat(weaponNameRui, "thicken", 0.0)
 	RuiSetFloat3(weaponNameRui, "msgColor", settingsWeaponName.color)
