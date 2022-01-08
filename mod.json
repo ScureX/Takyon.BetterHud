@@ -1,0 +1,21 @@
+{
+	"Name": "Takyon.BetterHud",
+	"Description": "that cool lookin hud thing",
+	"LoadPriority": 2,
+	"RequiredOnClient": false,
+	"Version": "2.0.0-alpha",
+	
+	"Scripts": [
+		{
+			"Path": "takyon_betterhud.nut",
+			"RunOn": "CLIENT",
+			"ClientCallback": {
+				"After": "betterhudPrecache"
+			}
+		}
+	],
+
+	"Localisation": [
+        "resource/takyon_betterhud_localisation_%language%.txt"
+    ]
+}
