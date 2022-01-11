@@ -7,57 +7,81 @@ global function betterhudPrecache
 struct{
     bool usesMetric = true //true: uses kph; false: uses mph
     bool colorFade = true // true: text color is red when you are slow and green when you are fast; false: static color which you can set below
-    vector position = Vector(0 - 0.03, 0.5, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
+    vector position = Vector(0 - 0.03, 0.17, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
     vector straightPosition = Vector(0.0, 0.10, 0.0)
     vector color = Vector(1.0, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
-    float size = 250.0 //size of the text
+    float size = 350.0 //size of the text
     float straightSize = 200.0 // size of text when textTopo is used
 } settingsSpeedometer
 
 struct{
     bool colorFade = true // true: text color is red when you are slow and green when you are fast; false: static color which you can set below
-    vector position = Vector(0.5, 0.5, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
+    vector position = Vector(0.68, 0.01, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
     // For some reason ammo position is only 1/4th as far from the center as speedometer position. keep this in mind when aligning 
     vector straightPosition = Vector(0.5, 0.10, 0.0)
     vector color = Vector(1.2, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
-    float size = 250.0 //size of the text
+    float size = 350.0 //size of the text
     float straightSize = 200.0 // size of text when textTopo is used
 } settingsAmmocounter
 
 struct{
     vector color = Vector(1.0, 1.0, 1.0) //standard rgb format, range: min - 0.0 to max - 1.0
-    vector position = Vector(0.04, 0 - 0.05, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
+    vector position = Vector(0.04, 0 - 0.15, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
     vector straightPosition = Vector(0.02, 0 - 0.12, 0.0)
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
-    float size = 150.0 //size of the text
+    float size = 210.0 //size of the text
     float straightSize = 120.0 // size of text when textTopo is used
 } settingsWeaponName
 
 struct{
     vector color = Vector(0.5, 0.5, 0.5) // Color of hud (the square background) 
     float alpha = 0.13 // opacity of hud
-    float horizontal = 0.0
-    float vertical = 0.0
     float transformHorizontal = -0.15
     float transformVertical = 0
-    float positionHorizontal = -39
+    float positionHorizontal = -31 
     float positionVertical = 20
-    float hudScale = 0.3
+    float hudHeight = 0.15
+    float hudWidth = 0.18
 } settingsHud
 
 struct{
     vector color = Vector(0.23, 0.23, 0.23) // Color of hud (the square background) make this a bit darker than in settingsHud
     float alpha = 0.20 // opacity of hud
-    float horizontal = 0.0
-    float vertical = 0.0
+    float transformHorizontal = -0.15 // -0.15
+    float transformVertical = 0
+    float positionHorizontal = -31.8 
+    float positionVertical = 14.0
+    float hudHeight = 0.045
+    float hudWidth = 0.20
+} settingsNameHud
+
+struct{
+    vector colorPrimary = Vector(0.1, 0.1, 0.1)
+    vector colorSecondary = Vector(0.5, 0.5, 0.5)
+    float alphaPrimary = 0.20 
+    float alphaSecorndary = 0.40 
     float transformHorizontal = -0.15
     float transformVertical = 0
-    float positionHorizontal = -39.8
-    float positionVertical = 14.0
-    float nameHudScale = 0.045
-} settingsNameHud
+    float positionHorizontal = -52.5
+    float positionVertical = 20.0
+    float hudHeight = 0.149
+    float hudWidth = 0.017
+} settingsOrdnanceBarHud
+
+struct{
+    vector colorPrimary = Vector(0.1, 0.1, 0.1)
+    vector colorSecondary = Vector(0.5, 0.5, 0.5)
+    float alphaPrimary = 0.20 
+    float alphaSecorndary = 0.40 
+    float transformHorizontal = -0.15
+    float transformVertical = 0
+    float positionHorizontal = -57.0
+    float positionVertical = 20.0
+    float hudHeight = 0.149
+    float hudWidth = 0.017
+} settingsAbilityBarHud
 
 void function betterhudPrecache(){
     thread betterhudInit()
@@ -71,41 +95,31 @@ void function betterhudInit(){
     WaitFrame()
 
     // Hud // the big square that acts as background
-    var hudTopo = RuiTopology_CreateSphere( 
-        COCKPIT_RUI_OFFSET - <0, settingsHud.positionHorizontal, settingsHud.positionVertical>, // POSITION | in screen, left/right, up/down
-        <0, -1, settingsHud.transformVertical>, // ?, ?, left side down right side up
-        <0, settingsHud.transformHorizontal, -1>, // ?, bottom left top right, ?
-        COCKPIT_RUI_RADIUS, 
-        COCKPIT_RUI_WIDTH*settingsHud.hudScale, 
-        COCKPIT_RUI_HEIGHT*(settingsHud.hudScale/2), 
-        COCKPIT_RUI_SUBDIV*8 
-    )
+    var hudTopo = CreateRuiTopo(settingsHud.positionHorizontal, settingsHud.positionVertical, settingsHud.transformVertical, settingsHud.transformHorizontal, settingsHud.hudWidth, settingsHud.hudHeight)
     var hudRui = RuiCreate( $"ui/basic_image.rpak", hudTopo, RUI_DRAW_COCKPIT, 7 )
     hudInit(hudRui)
 
     // nameHud // The little box around the weapon name
-    var nameHudTopo = RuiTopology_CreateSphere( 
-        COCKPIT_RUI_OFFSET - <0.0, settingsNameHud.positionHorizontal, settingsNameHud.positionVertical>, // POSITION | in screen, left/right, up/down
-        <0, -1, settingsNameHud.transformVertical>, // ?, ?, left side down right side up
-        <0, settingsNameHud.transformHorizontal, -1>, // ?, bottom left top right, ?
-        COCKPIT_RUI_RADIUS, 
-        COCKPIT_RUI_WIDTH*settingsHud.hudScale, // taking settingshud and not settingsNameHud so it has the same width
-        COCKPIT_RUI_HEIGHT*(settingsNameHud.nameHudScale), 
-        COCKPIT_RUI_SUBDIV*8 
-    )
+    var nameHudTopo = CreateRuiTopo(settingsNameHud.positionHorizontal, settingsNameHud.positionVertical, settingsNameHud.transformVertical, settingsNameHud.transformHorizontal, settingsHud.hudWidth, settingsNameHud.hudHeight)
     var nameHudRui = RuiCreate( $"ui/basic_image.rpak", nameHudTopo, RUI_DRAW_COCKPIT, 8 )
     nameHudInit(nameHudRui)
 
+    //OrdnanceBarHud
+    var ordnanceBarTopo = CreateRuiTopo(settingsOrdnanceBarHud.positionHorizontal, settingsOrdnanceBarHud.positionVertical, settingsOrdnanceBarHud.transformVertical, settingsOrdnanceBarHud.transformHorizontal, settingsOrdnanceBarHud.hudWidth, settingsOrdnanceBarHud.hudHeight)
+    var ordnanceBarSecondaryTopo = CreateRuiTopo(settingsOrdnanceBarHud.positionHorizontal, settingsOrdnanceBarHud.positionVertical, settingsOrdnanceBarHud.transformVertical, settingsOrdnanceBarHud.transformHorizontal, settingsOrdnanceBarHud.hudWidth, settingsOrdnanceBarHud.hudHeight)
+    var ordnanceBarHud = RuiCreate( $"ui/basic_image.rpak", ordnanceBarTopo, RUI_DRAW_COCKPIT, 7 )
+    var ordnanceBarSecondaryHud = RuiCreate( $"ui/basic_image.rpak", ordnanceBarSecondaryTopo, RUI_DRAW_COCKPIT, 8 )
+    ordnanceBarHudInit(ordnanceBarHud, ordnanceBarSecondaryHud)
+
+    //AbilityBarHud
+    var abilityBarTopo = CreateRuiTopo(settingsAbilityBarHud.positionHorizontal, settingsAbilityBarHud.positionVertical, settingsAbilityBarHud.transformVertical, settingsAbilityBarHud.transformHorizontal, settingsAbilityBarHud.hudWidth, settingsAbilityBarHud.hudHeight)
+    var abilityBarSecondaryTopo = CreateRuiTopo(settingsAbilityBarHud.positionHorizontal, settingsAbilityBarHud.positionVertical, settingsAbilityBarHud.transformVertical, settingsAbilityBarHud.transformHorizontal, settingsAbilityBarHud.hudWidth, settingsAbilityBarHud.hudHeight)
+    var abilityBarHud = RuiCreate( $"ui/basic_image.rpak", abilityBarTopo, RUI_DRAW_COCKPIT, 7 )
+    var abilityBarSecondaryHud = RuiCreate( $"ui/basic_image.rpak", abilityBarSecondaryTopo, RUI_DRAW_COCKPIT, 8 )
+    abilityBarHudInit(abilityBarHud, abilityBarSecondaryHud)
+
     // Text topology // this is so the text isnt slanted. if you want slanted text change the textTopo to hudTopo when creating rui below
-    var textTopo = RuiTopology_CreateSphere( 
-        COCKPIT_RUI_OFFSET - <0, settingsHud.positionHorizontal, settingsHud.positionVertical+10>, // POSITION | in screen, left/right, up/down
-        <0, -1, 0>, // ?, ?, left side down right side up
-        <0, 0, -1>, // ?, bottom left top right, ?
-        COCKPIT_RUI_RADIUS, 
-        COCKPIT_RUI_WIDTH*settingsHud.hudScale, 
-        COCKPIT_RUI_HEIGHT*(settingsHud.hudScale), 
-        COCKPIT_RUI_SUBDIV*8 
-    )
+    var textTopo = CreateRuiTopo(settingsHud.positionHorizontal, settingsHud.positionVertical+10, 0, 0, settingsHud.hudHeight, settingsHud.hudWidth)
 
     // Speedometer
     var speedRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
@@ -119,7 +133,9 @@ void function betterhudInit(){
     var weaponNameRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
     weaponNameInit(weaponNameRui)
 
-    thread betterhudMain(speedRui, ammoRui, hudRui, weaponNameRui, nameHudRui)
+    
+
+    thread betterhudMain(speedRui, ammoRui, hudRui, weaponNameRui, nameHudRui, ordnanceBarHud, abilityBarHud, ordnanceBarSecondaryHud, abilityBarSecondaryHud, ordnanceBarSecondaryTopo, abilityBarSecondaryTopo)
 }
 
 /*
@@ -134,6 +150,22 @@ void function hudInit(var hudRui){
 void function nameHudInit(var nameHudRui){
     RuiSetFloat3( nameHudRui, "basicImageColor", settingsNameHud.color) 
     RuiSetFloat( nameHudRui, "basicImageAlpha", settingsNameHud.alpha)
+}
+
+void function ordnanceBarHudInit(var ordnanceBarHud, var ordnanceBarSecondaryHud){
+    RuiSetFloat3( ordnanceBarHud, "basicImageColor", settingsOrdnanceBarHud.colorPrimary) 
+    RuiSetFloat( ordnanceBarHud, "basicImageAlpha", settingsOrdnanceBarHud.alphaPrimary)
+
+    RuiSetFloat3( ordnanceBarSecondaryHud, "basicImageColor", settingsOrdnanceBarHud.colorSecondary) 
+    RuiSetFloat( ordnanceBarSecondaryHud, "basicImageAlpha", settingsOrdnanceBarHud.alphaSecorndary)
+}
+
+void function abilityBarHudInit(var abilityBarHud, var abilityBarSecondaryHud){
+    RuiSetFloat3( abilityBarHud, "basicImageColor", settingsAbilityBarHud.colorPrimary) 
+    RuiSetFloat( abilityBarHud, "basicImageAlpha", settingsAbilityBarHud.alphaPrimary)
+
+    RuiSetFloat3( abilityBarSecondaryHud, "basicImageColor", settingsAbilityBarHud.colorSecondary) 
+    RuiSetFloat( abilityBarSecondaryHud, "basicImageAlpha", settingsAbilityBarHud.alphaSecorndary)
 }
 
 void function speedometerInit(var speedRui){
@@ -172,123 +204,127 @@ void function weaponNameInit(var weaponNameRui){
 /*
  *  MAIN FUNCTION LOOP
  */
-
-void function betterhudMain(var speedRui, var ammoRui, var hudRui, var weaponNameRui, var nameHudRui){
+void function betterhudMain(var speedRui, var ammoRui, var hudRui, var weaponNameRui, var nameHudRui, var ordnanceBarHud, var abilityBarHud, var ordnanceBarSecondaryHud, var abilityBarSecondaryHud, var ordnanceBarSecondaryTopo, var abilityBarSecondaryTopo){
     while(true){
         WaitFrame()
         if(!IsLobby()){
             entity player = GetLocalViewPlayer()
-            if (player == null || !IsValid(player))
+            entity activeWeapon = player.GetActiveWeapon()
+
+            if (player == null || !IsValid(player) || !IsValid(activeWeapon))
 			    continue
             
-            // hide if dead or in dropship
-            bool playerInDropship
-            if(player.GetParent() != null){
-                playerInDropship = IsDropship(player.GetParent())
-            }
-            else {
-                playerInDropship = false
-            }
+            // Hide weapon status
+            ClWeaponStatus_SetWeaponVisible( false )
 
-            if(!IsAlive(player) || playerInDropship){
-                setAlpha(speedRui)
-                setAlpha(ammoRui)
-                setAlpha(weaponNameRui)
+            // hide if dead or in dropship
+            if(!IsAlive(player) || IsPlayerInDropship(player)){
+                SetTextAlpha(speedRui)
+                SetTextAlpha(ammoRui)
+                SetTextAlpha(weaponNameRui)
                 RuiSetFloat(hudRui, "basicImageAlpha", 0.0)
                 RuiSetFloat(nameHudRui, "basicImageAlpha", 0.0)
+                RuiSetFloat(ordnanceBarHud, "basicImageAlpha", 0.0)
+                RuiSetFloat(abilityBarHud, "basicImageAlpha", 0.0)
+                RuiSetFloat(ordnanceBarSecondaryHud, "basicImageAlpha", 0.0)
+                RuiSetFloat(abilityBarSecondaryHud, "basicImageAlpha", 0.0)
+
                 continue
             } else{
-                setAlpha(speedRui, settingsSpeedometer.alpha)
-                setAlpha(ammoRui, settingsAmmocounter.alpha)
-                setAlpha(weaponNameRui, settingsWeaponName.alpha)
+                SetTextAlpha(speedRui, settingsSpeedometer.alpha)
+                SetTextAlpha(ammoRui, settingsAmmocounter.alpha)
+                SetTextAlpha(weaponNameRui, settingsWeaponName.alpha)
                 RuiSetFloat(hudRui, "basicImageAlpha", settingsHud.alpha)
                 RuiSetFloat(nameHudRui, "basicImageAlpha", settingsNameHud.alpha)
+                RuiSetFloat(ordnanceBarHud, "basicImageAlpha", settingsOrdnanceBarHud.alphaPrimary)
+                RuiSetFloat(abilityBarHud, "basicImageAlpha", settingsAbilityBarHud.alphaPrimary)
+                RuiSetFloat(ordnanceBarSecondaryHud, "basicImageAlpha", settingsOrdnanceBarHud.alphaSecorndary)
+                RuiSetFloat(abilityBarSecondaryHud, "basicImageAlpha", settingsAbilityBarHud.alphaSecorndary)
+            }
+
+            /*
+             *  HIDE ON ADS
+             */
+            // sets alpha based on zoom factor: while ads you dont see the hud 
+            float zoomFrac = activeWeapon.GetWeaponOwner().GetZoomFrac() // 0 = zoomed out, anything above is zoomed in
+            if(zoomFrac > 0){
+                SetTextAlpha(speedRui, settingsSpeedometer.alpha * (1 - zoomFrac))
+                SetTextAlpha(ammoRui, settingsAmmocounter.alpha * (1 - zoomFrac))
+                SetTextAlpha(weaponNameRui, settingsWeaponName.alpha * (1 - zoomFrac))
+                RuiSetFloat(hudRui, "basicImageAlpha", settingsHud.alpha * (1 - zoomFrac))
+                RuiSetFloat(nameHudRui, "basicImageAlpha", settingsNameHud.alpha * (1 - zoomFrac))
+                RuiSetFloat(ordnanceBarHud, "basicImageAlpha",  settingsOrdnanceBarHud.alphaPrimary * (1 - zoomFrac))
+                RuiSetFloat(abilityBarHud, "basicImageAlpha",  settingsAbilityBarHud.alphaPrimary * (1 - zoomFrac))
             }
 
             /*  
-            Speedometer  
-            */
-            // draw
+             *  Speedometer  
+             */
             drawSpeedometer(player, speedRui)
 
             /*  
-            Ammo counter  
-            */
-            entity activeWeapon = player.GetActiveWeapon()
-            if (!IsValid(activeWeapon))
-                continue
-            
-            entity owner = activeWeapon.GetWeaponOwner()
-            float zoomFrac = owner.GetZoomFrac() // 0 = zoomed out, anything above is zoomed in
-            // sets alpha based on zoom factor: while ads you dont see the hud
-            if(zoomFrac > 0){
-                setAlpha(speedRui, settingsSpeedometer.alpha * (1 - zoomFrac))
-                setAlpha(ammoRui, settingsAmmocounter.alpha * (1 - zoomFrac))
-                setAlpha(weaponNameRui, settingsWeaponName.alpha * (1 - zoomFrac))
-                RuiSetFloat(hudRui, "basicImageAlpha", settingsHud.alpha * (1 - zoomFrac))
-                RuiSetFloat(nameHudRui, "basicImageAlpha", settingsNameHud.alpha * (1 - zoomFrac))
-            }
-            // draw ammo count
+             *  Ammo counter  
+             */
             drawAmmoCount(activeWeapon, ammoRui)
             
             /*
-            Weapon name
-            */
-            /* 
-            problem with:
-            ALL TITAN WEAPONS AND ABILITIES
-            40mm: should be: TITAN_40MM_TRACKER | is: STICKY_40MM
-            particle: should be: TITAN_PARTICLE_ACCEL | is: PARTICLE_ACCELERATOR
-            */
-            string className = activeWeapon.GetWeaponClassName().toupper() // MP_WEAPON_EPG NEEDS TO BE WPN_NAME_SHORT
-            array< string > asd = split(className, "_") // 0 = MP; 1 = WEAPON
-            string name
-            if(asd[0] == "MP" && !player.IsTitan()){
-                name = "WPN"
-                for(int i = 2; i < asd.len(); i += 1){
-                    name += "_" + asd[i].toupper()
-                }
-                name += "_SHORT"
-            } 
-            else if (asd[1] == "TITANABILITY"){
-                /*name = "WPN_TITANABILITY"
-                for(int i = 2; i < asd.len(); i += 1){
-                    name += "_" + asd[i].toupper()
-                }
-                printl(name) */
-                name = "TITAN"
-            } 
-            else if(asd[1] == "TITANWEAPON"){
-                /*name = "WPN_TITAN"
-                for(int i = 2; i < asd.len(); i += 1){
-                    name += "_" + asd[i].toupper()
-                }*/
-                name = "TITAN"
+             *  Weapon name
+             */ 
+            drawWeaponName(player, activeWeapon, weaponNameRui)
+
+            /*
+             *  Ordnance Bar
+             */
+            entity offhand = player.GetOffhandWeapon(0)
+            RuiTopology_UpdateSphereArcs( ordnanceBarSecondaryTopo, 
+            COCKPIT_RUI_WIDTH*settingsOrdnanceBarHud.hudWidth, 
+            (COCKPIT_RUI_HEIGHT*(settingsOrdnanceBarHud.hudHeight*offhand.GetWeaponPrimaryClipCount()/offhand.GetWeaponPrimaryClipCountMax())), 
+            COCKPIT_RUI_SUBDIV*3 )
+            // TODO Show when ready
+
+            /*
+             *  Ability Bar
+             */
+            entity ability = player.GetOffhandWeapon(OFFHAND_SPECIAL)
+            // Grapple is fucking shit
+            float maxGrapplePower = 100.0 // TODO this is bad
+            if(ability.GetWeaponClassName() == "mp_ability_grapple"){
+                RuiTopology_UpdateSphereArcs( abilityBarSecondaryTopo, 
+                COCKPIT_RUI_WIDTH*settingsAbilityBarHud.hudWidth, 
+                (COCKPIT_RUI_HEIGHT*(settingsAbilityBarHud.hudHeight*player.GetSuitGrapplePower()/maxGrapplePower)), 
+                COCKPIT_RUI_SUBDIV*3 )
             }
             else {
-                //name = className // debugging :(
-                name = "" // dont show name if it cant be localized // TODO: localize this shit ughhh
+                RuiTopology_UpdateSphereArcs( abilityBarSecondaryTopo, 
+                COCKPIT_RUI_WIDTH*settingsAbilityBarHud.hudWidth, 
+                (COCKPIT_RUI_HEIGHT*(settingsAbilityBarHud.hudHeight*ability.GetWeaponPrimaryClipCount()/ability.GetWeaponPrimaryClipCountMax())), 
+                COCKPIT_RUI_SUBDIV*3 )
             }
-            RuiSetString(weaponNameRui, "msgText", name)
-            
+            // TODO Show when ready
             
             /* 
             Healt bar 
             */
-            //TODO
-            // GetMaxHealth()
-            // GetHealthFrac(player)
-
+            //TODO // GetMaxHealth() // GetHealthFrac(player)
         }
         else{
-            setAlpha(speedRui)
-            setAlpha(ammoRui)
-            setAlpha(weaponNameRui)
+            // Hide if in Lobby
+            SetTextAlpha(speedRui)
+            SetTextAlpha(ammoRui)
+            SetTextAlpha(weaponNameRui)
             RuiSetFloat(hudRui, "basicImageAlpha", 0.0)
             RuiSetFloat(nameHudRui, "basicImageAlpha", 0.0)
+            RuiSetFloat(ordnanceBarHud, "basicImageAlpha", 0.0)
+            RuiSetFloat(abilityBarHud, "basicImageAlpha", 0.0)
+            RuiSetFloat(ordnanceBarSecondaryHud, "basicImageAlpha", 0.0)
+            RuiSetFloat(abilityBarSecondaryHud, "basicImageAlpha", 0.0)
         }
     }
 }
+
+/*
+ *  HUD LOGIC
+ */
 
 void function drawSpeedometer(entity player, var speedRui){
     vector playerVelV = player.GetVelocity()
@@ -329,7 +365,7 @@ void function drawAmmoCount(entity activeWeapon, var ammoRui){ // TODO: maybe ch
         currAmmo = float(activeWeapon.GetWeaponPrimaryClipCount())
         maxAmmo = float(activeWeapon.GetWeaponPrimaryClipCountMax())
         RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
-        ammoCountStr = currAmmo + "/" + maxAmmo
+        ammoCountStr = currAmmo + "\n" + maxAmmo
     }
     else { // melee
         ammoCountStr = "MELEE"
@@ -338,6 +374,68 @@ void function drawAmmoCount(entity activeWeapon, var ammoRui){ // TODO: maybe ch
     RuiSetString(ammoRui, "msgText", ammoCountStr)
 }
 
-void function setAlpha(var rui, float alpha = 0.0){
+void function drawWeaponName(entity player, entity activeWeapon, var weaponNameRui){
+    /*problem with:
+    ALL TITAN WEAPONS AND ABILITIES
+    40mm: should be: TITAN_40MM_TRACKER | is: STICKY_40MM
+    particle: should be: TITAN_PARTICLE_ACCEL | is: PARTICLE_ACCELERATOR
+    */
+    string className = activeWeapon.GetWeaponClassName().toupper() // MP_WEAPON_EPG NEEDS TO BE WPN_NAME_SHORT
+    array< string > asd = split(className, "_") // 0 = MP; 1 = WEAPON
+    string name
+    if(asd[0] == "MP" && !player.IsTitan()){
+        name = "WPN"
+        for(int i = 2; i < asd.len(); i += 1){
+            name += "_" + asd[i].toupper()
+        }
+        name += "_SHORT"
+    } 
+    else if (asd[1] == "TITANABILITY"){
+        /*name = "WPN_TITANABILITY"
+        for(int i = 2; i < asd.len(); i += 1){
+            name += "_" + asd[i].toupper()
+        }
+        printl(name) */
+        name = "TITAN"
+    } 
+    else if(asd[1] == "TITANWEAPON"){
+        /*name = "WPN_TITAN"
+        for(int i = 2; i < asd.len(); i += 1){
+            name += "_" + asd[i].toupper()
+        }*/
+        name = "TITAN"
+    }
+    else {
+        //name = className // debugging :(
+        name = "" // dont show name if it cant be localized // TODO: localize this shit ughhh
+    }
+    RuiSetString(weaponNameRui, "msgText", name)
+}
+
+/*
+ *  HELPER FUNCTIONS
+ */
+
+void function SetTextAlpha(var rui, float alpha = 0.0){
     RuiSetFloat(rui, "msgAlpha", alpha)
+}
+
+var function CreateRuiTopo(float positionHorizontal, float positionVertical, float transformVertical, float transformHorizontal, float hudWidth, float hudHeight){
+    var topo = RuiTopology_CreateSphere( 
+        COCKPIT_RUI_OFFSET - <0, positionHorizontal, positionVertical>, // POSITION | in screen, left/right, up/down
+        <0, -1, transformVertical>, // ?, ?, left side down right side up
+        <0, transformHorizontal, -1>, // ?, bottom left top right, ?
+        COCKPIT_RUI_RADIUS, 
+        COCKPIT_RUI_WIDTH*hudWidth, 
+        COCKPIT_RUI_HEIGHT*hudHeight, 
+        COCKPIT_RUI_SUBDIV*3 
+    )
+    return topo
+}
+
+bool function IsPlayerInDropship(entity player){
+    if(player.GetParent() != null){
+        return IsDropship(player.GetParent())
+    }
+    return false
 }
