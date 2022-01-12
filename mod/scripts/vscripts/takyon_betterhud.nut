@@ -7,32 +7,37 @@ global function betterhudPrecache
 struct{
     bool usesMetric = true //true: uses kph; false: uses mph
     bool colorFade = true // true: text color is red when you are slow and green when you are fast; false: static color which you can set below
-    vector position = Vector(0 - 0.03, 0.17, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
-    vector straightPosition = Vector(0.0, 0.10, 0.0)
+    bool useStraightText = false
+    vector position = Vector(0.0, 0.17, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
+    vector straightPosition = Vector(0 - 0.03, 0.15, 0.0)
     vector color = Vector(1.0, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
     float size = 350.0 //size of the text
-    float straightSize = 200.0 // size of text when textTopo is used
+    float straightSize = 350.0 // size of text when textTopo is used
 } settingsSpeedometer
 
 struct{
     bool colorFade = true // true: text color is red when you are slow and green when you are fast; false: static color which you can set below
+    bool useStraightText = false
     vector position = Vector(0.68, 0.01, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
     // For some reason ammo position is only 1/4th as far from the center as speedometer position. keep this in mind when aligning 
-    vector straightPosition = Vector(0.5, 0.10, 0.0)
+    vector chargePosition = Vector(0.68, 0.16, 0.0)
+    vector straightPosition = Vector(0.68, 0 - 0.02, 0.0)
+    vector straightChargePosition = Vector(0.68, 0.15, 0.0)
     vector color = Vector(1.2, 0.55, 0.0) //standard rgb format, range: min - 0.0 to max - 1.0
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
     float size = 350.0 //size of the text
-    float straightSize = 200.0 // size of text when textTopo is used
+    float straightSize = 350.0 // size of text when textTopo is used
 } settingsAmmocounter
 
 struct{
     vector color = Vector(1.0, 1.0, 1.0) //standard rgb format, range: min - 0.0 to max - 1.0
+    bool useStraightText = false
     vector position = Vector(0.04, 0 - 0.15, 0.0) //x axis: 0.0 is max left, 1.0 is max right; y axis: 0.0 is max top, 1.0 is max down; z doesn't do anything
-    vector straightPosition = Vector(0.02, 0 - 0.12, 0.0)
+    vector straightPosition = Vector(0 - 0.04, 0 - 0.09, 0.0)
     float alpha = 0.9 //maxiumum alpha of the text, range: 0.0 to 1.0
     float size = 210.0 //size of the text
-    float straightSize = 120.0 // size of text when textTopo is used
+    float straightSize = 213.0 // size of text when textTopo is used
 } settingsWeaponName
 
 struct{
@@ -119,21 +124,32 @@ void function betterhudInit(){
     abilityBarHudInit(abilityBarHud, abilityBarSecondaryHud)
 
     // Text topology // this is so the text isnt slanted. if you want slanted text change the textTopo to hudTopo when creating rui below
-    var textTopo = CreateRuiTopo(settingsHud.positionHorizontal, settingsHud.positionVertical+10, 0, 0, settingsHud.hudHeight, settingsHud.hudWidth)
+    var textTopo = CreateRuiTopo(settingsHud.positionHorizontal, settingsHud.positionVertical, 0, 0, settingsHud.hudHeight, settingsHud.hudWidth)
 
+    var speedRui
+    var ammoRui
+    var weaponNameRui
+    
     // Speedometer
-    var speedRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
+    if(settingsSpeedometer.useStraightText)
+        speedRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", textTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
+    else
+        speedRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
     speedometerInit(speedRui)
     
     // Ammocounter
-    var ammoRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
+    if(settingsAmmocounter.useStraightText)
+        ammoRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", textTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
+    else
+        ammoRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
     ammoCounterInit(ammoRui)
 
     // WeaponName
-    var weaponNameRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
+    if(settingsWeaponName.useStraightText)
+        weaponNameRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", textTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
+    else
+        weaponNameRui = RuiCreate( $"ui/cockpit_console_text_top_left.rpak", hudTopo, RUI_DRAW_COCKPIT, 9 ) // hudTopo for slanted, textTopo for straight
     weaponNameInit(weaponNameRui)
-
-    
 
     thread betterhudMain(speedRui, ammoRui, hudRui, weaponNameRui, nameHudRui, ordnanceBarHud, abilityBarHud, ordnanceBarSecondaryHud, abilityBarSecondaryHud, ordnanceBarSecondaryTopo, abilityBarSecondaryTopo)
 }
@@ -153,8 +169,8 @@ void function nameHudInit(var nameHudRui){
 }
 
 void function ordnanceBarHudInit(var ordnanceBarHud, var ordnanceBarSecondaryHud){
-    RuiSetFloat3( ordnanceBarHud, "basicImageColor", settingsOrdnanceBarHud.colorPrimary) 
-    RuiSetFloat( ordnanceBarHud, "basicImageAlpha", settingsOrdnanceBarHud.alphaPrimary)
+    RuiSetFloat3( ordnanceBarHud, "basicImageColor", settingsOrdnanceBarHud.colorPrimary)
+    RuiSetFloat( ordnanceBarHud, "basicImageAlpha", settingsOrdnanceBarHud.alphaPrimary) 
 
     RuiSetFloat3( ordnanceBarSecondaryHud, "basicImageColor", settingsOrdnanceBarHud.colorSecondary) 
     RuiSetFloat( ordnanceBarSecondaryHud, "basicImageAlpha", settingsOrdnanceBarHud.alphaSecorndary)
@@ -171,9 +187,15 @@ void function abilityBarHudInit(var abilityBarHud, var abilityBarSecondaryHud){
 void function speedometerInit(var speedRui){
     RuiSetInt(speedRui, "maxLines", 1)
 	RuiSetInt(speedRui, "lineNum", 1)
-	RuiSetFloat2(speedRui, "msgPos", settingsSpeedometer.position) // can be straight
+    if(settingsSpeedometer.useStraightText){
+        RuiSetFloat2(speedRui, "msgPos", settingsSpeedometer.straightPosition) // can be straightPosition
+        RuiSetFloat(speedRui, "msgFontSize", settingsSpeedometer.straightSize) // can be straightSize
+    }
+    else{
+        RuiSetFloat2(speedRui, "msgPos", settingsSpeedometer.position) // can be straightPosition
+        RuiSetFloat(speedRui, "msgFontSize", settingsSpeedometer.size) // can be straightSize
+    }
 	RuiSetString(speedRui, "msgText", "speed")
-	RuiSetFloat(speedRui, "msgFontSize", settingsSpeedometer.size) // can be straight
 	RuiSetFloat(speedRui, "msgAlpha", settingsSpeedometer.alpha)
 	RuiSetFloat(speedRui, "thicken", 0.0)
 	RuiSetFloat3(speedRui, "msgColor", settingsSpeedometer.color)
@@ -182,9 +204,15 @@ void function speedometerInit(var speedRui){
 void function ammoCounterInit(var ammoRui){
     RuiSetInt(ammoRui, "maxLines", 1)
 	RuiSetInt(ammoRui, "lineNum", 1)
-	RuiSetFloat2(ammoRui, "msgPos", settingsAmmocounter.position) // can be straight
-	RuiSetString(ammoRui, "msgText", "ammo")
-	RuiSetFloat(ammoRui, "msgFontSize", settingsAmmocounter.size) // can be straight
+    if(settingsAmmocounter.useStraightText){
+        RuiSetFloat2(ammoRui, "msgPos", settingsAmmocounter.straightPosition) // can be straightPosition
+        RuiSetFloat(ammoRui, "msgFontSize", settingsAmmocounter.straightSize) // can be straightSize
+    }
+    else{
+        RuiSetFloat2(ammoRui, "msgPos", settingsAmmocounter.position) // can be straightPosition
+        RuiSetFloat(ammoRui, "msgFontSize", settingsAmmocounter.size) // can be straightSize
+    }
+    RuiSetString(ammoRui, "msgText", "ammo")
 	RuiSetFloat(ammoRui, "msgAlpha", settingsAmmocounter.alpha)
 	RuiSetFloat(ammoRui, "thicken", 0.0)
 	RuiSetFloat3(ammoRui, "msgColor", settingsAmmocounter.color)
@@ -193,9 +221,16 @@ void function ammoCounterInit(var ammoRui){
 void function weaponNameInit(var weaponNameRui){
     RuiSetInt(weaponNameRui, "maxLines", 1)
 	RuiSetInt(weaponNameRui, "lineNum", 1)
-	RuiSetFloat2(weaponNameRui, "msgPos", settingsWeaponName.position) // can be straight
+    if(settingsWeaponName.useStraightText){
+        RuiSetFloat2(weaponNameRui, "msgPos", settingsWeaponName.straightPosition) // can be straightPosition
+        RuiSetFloat(weaponNameRui, "msgFontSize", settingsWeaponName.straightSize) // can be straightSize
+    }
+    else{
+        RuiSetFloat2(weaponNameRui, "msgPos", settingsWeaponName.position) // can be straightPosition
+        RuiSetFloat(weaponNameRui, "msgFontSize", settingsWeaponName.size) // can be straightSize
+    }
 	RuiSetString(weaponNameRui, "msgText", "name")
-	RuiSetFloat(weaponNameRui, "msgFontSize", settingsWeaponName.size) // can be straight
+	
 	RuiSetFloat(weaponNameRui, "msgAlpha", settingsWeaponName.alpha)
 	RuiSetFloat(weaponNameRui, "thicken", 0.0)
 	RuiSetFloat3(weaponNameRui, "msgColor", settingsWeaponName.color)
@@ -255,6 +290,8 @@ void function betterhudMain(var speedRui, var ammoRui, var hudRui, var weaponNam
                 RuiSetFloat(nameHudRui, "basicImageAlpha", settingsNameHud.alpha * (1 - zoomFrac))
                 RuiSetFloat(ordnanceBarHud, "basicImageAlpha",  settingsOrdnanceBarHud.alphaPrimary * (1 - zoomFrac))
                 RuiSetFloat(abilityBarHud, "basicImageAlpha",  settingsAbilityBarHud.alphaPrimary * (1 - zoomFrac))
+                RuiSetFloat(ordnanceBarSecondaryHud, "basicImageAlpha",  settingsAbilityBarHud.alphaSecorndary * (1 - zoomFrac))
+                RuiSetFloat(abilityBarSecondaryHud, "basicImageAlpha",  settingsAbilityBarHud.alphaSecorndary * (1 - zoomFrac))
             }
 
             /*  
@@ -329,7 +366,9 @@ void function betterhudMain(var speedRui, var ammoRui, var hudRui, var weaponNam
 void function drawSpeedometer(entity player, var speedRui){
     vector playerVelV = player.GetVelocity()
     float playerVel = sqrt(playerVelV.x * playerVelV.x + playerVelV.y * playerVelV.y)
-    float playerVelNormal = playerVel * 0.068544
+    float playerVelNormal = playerVel * (0.274176/3)
+    if(!settingsSpeedometer.usesMetric)
+        playerVelNormal *= (0.621371)
     string playerVelStr = format("%3i", playerVelNormal)
     if(settingsSpeedometer.usesMetric)
         playerVelStr += "kph"
@@ -354,21 +393,24 @@ void function drawAmmoCount(entity activeWeapon, var ammoRui){ // TODO: maybe ch
     float maxAmmo
     string ammoCountStr
 
+    SetAmmoCounterStraightOrSlanted(ammoRui, settingsAmmocounter.useStraightText, activeWeapon.IsChargeWeapon())
     // ammo color change
     if( activeWeapon.IsChargeWeapon()){ // is chargeable
         currAmmo = activeWeapon.GetWeaponChargeFraction()
         maxAmmo = 1.0
-        RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
         ammoCountStr =  int(currAmmo*100) + "%"
+        if(settingsAmmocounter.colorFade)
+            RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
     }
     else if(activeWeapon.GetWeaponPrimaryClipCountMax() > 0){ // is bullet // BAD FIX TODO
         currAmmo = float(activeWeapon.GetWeaponPrimaryClipCount())
         maxAmmo = float(activeWeapon.GetWeaponPrimaryClipCountMax())
-        RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
         ammoCountStr = currAmmo + "\n" + maxAmmo
+        if(settingsAmmocounter.colorFade)
+            RuiSetFloat3(ammoRui, "msgColor", Vector(1.0 - (currAmmo/maxAmmo) , currAmmo/maxAmmo, 0.0)) 
     }
     else { // melee
-        ammoCountStr = "MELEE"
+        ammoCountStr = ""
     }
     // draw ammo count
     RuiSetString(ammoRui, "msgText", ammoCountStr)
@@ -438,4 +480,21 @@ bool function IsPlayerInDropship(entity player){
         return IsDropship(player.GetParent())
     }
     return false
+}
+
+void function SetAmmoCounterStraightOrSlanted(var rui, bool usesStraightText, bool isChargeWeapon){
+    if(settingsAmmocounter.useStraightText){
+        if(isChargeWeapon){
+            RuiSetFloat2(rui, "msgPos", settingsAmmocounter.straightChargePosition)
+            return
+        }
+        RuiSetFloat2(rui, "msgPos", settingsAmmocounter.straightPosition)
+    }
+    else {
+        if(isChargeWeapon){
+            RuiSetFloat2(rui, "msgPos", settingsAmmocounter.chargePosition)
+            return
+        }          
+        RuiSetFloat2(rui, "msgPos", settingsAmmocounter.position)
+    }
 }
