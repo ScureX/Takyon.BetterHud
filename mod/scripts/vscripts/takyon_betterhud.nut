@@ -312,11 +312,14 @@ void function betterhudMain(var speedRui, var ammoRui, var hudRui, var weaponNam
             /*
              *  Ordnance Bar
              */
+            // apparently you cant get other peoples offhand so this will throw null? i think?? 
             entity offhand = player.GetOffhandWeapon(0)
-            RuiTopology_UpdateSphereArcs( ordnanceBarSecondaryTopo, 
-            COCKPIT_RUI_WIDTH*settingsOrdnanceBarHud.hudWidth, 
-            (COCKPIT_RUI_HEIGHT*(settingsOrdnanceBarHud.hudHeight*offhand.GetWeaponPrimaryClipCount()/offhand.GetWeaponPrimaryClipCountMax())), 
-            COCKPIT_RUI_SUBDIV*3 )
+            if(offhand != null){
+                RuiTopology_UpdateSphereArcs( ordnanceBarSecondaryTopo, 
+                COCKPIT_RUI_WIDTH*settingsOrdnanceBarHud.hudWidth, 
+                (COCKPIT_RUI_HEIGHT*(settingsOrdnanceBarHud.hudHeight*offhand.GetWeaponPrimaryClipCount()/offhand.GetWeaponPrimaryClipCountMax())), 
+                COCKPIT_RUI_SUBDIV ) // ERROR OFFHAND NULL??
+            }
             // TODO Show when ready
 
             /*
@@ -326,16 +329,20 @@ void function betterhudMain(var speedRui, var ammoRui, var hudRui, var weaponNam
             // Grapple is fucking shit
             float maxGrapplePower = 100.0 // TODO this is bad
             if(ability.GetWeaponClassName() == "mp_ability_grapple"){
-                RuiTopology_UpdateSphereArcs( abilityBarSecondaryTopo, 
-                COCKPIT_RUI_WIDTH*settingsAbilityBarHud.hudWidth, 
-                (COCKPIT_RUI_HEIGHT*(settingsAbilityBarHud.hudHeight*player.GetSuitGrapplePower()/maxGrapplePower)), 
-                COCKPIT_RUI_SUBDIV*3 )
+                if(offhand != null){
+                    RuiTopology_UpdateSphereArcs( abilityBarSecondaryTopo, 
+                    COCKPIT_RUI_WIDTH*settingsAbilityBarHud.hudWidth, 
+                    (COCKPIT_RUI_HEIGHT*(settingsAbilityBarHud.hudHeight*player.GetSuitGrapplePower()/maxGrapplePower)), 
+                    COCKPIT_RUI_SUBDIV )
+                }
             }
             else {
-                RuiTopology_UpdateSphereArcs( abilityBarSecondaryTopo, 
-                COCKPIT_RUI_WIDTH*settingsAbilityBarHud.hudWidth, 
-                (COCKPIT_RUI_HEIGHT*(settingsAbilityBarHud.hudHeight*ability.GetWeaponPrimaryClipCount()/ability.GetWeaponPrimaryClipCountMax())), 
-                COCKPIT_RUI_SUBDIV*3 )
+                if(offhand != null){
+                    RuiTopology_UpdateSphereArcs( abilityBarSecondaryTopo, 
+                    COCKPIT_RUI_WIDTH*settingsAbilityBarHud.hudWidth, 
+                    (COCKPIT_RUI_HEIGHT*(settingsAbilityBarHud.hudHeight*ability.GetWeaponPrimaryClipCount()/ability.GetWeaponPrimaryClipCountMax())), 
+                    COCKPIT_RUI_SUBDIV )
+                }
             }
             // TODO Show when ready
             
@@ -417,41 +424,9 @@ void function drawAmmoCount(entity activeWeapon, var ammoRui){ // TODO: maybe ch
 }
 
 void function drawWeaponName(entity player, entity activeWeapon, var weaponNameRui){
-    /*problem with:
-    ALL TITAN WEAPONS AND ABILITIES
-    40mm: should be: TITAN_40MM_TRACKER | is: STICKY_40MM
-    particle: should be: TITAN_PARTICLE_ACCEL | is: PARTICLE_ACCELERATOR
-    */
-    string className = activeWeapon.GetWeaponClassName().toupper() // MP_WEAPON_EPG NEEDS TO BE WPN_NAME_SHORT
-    array< string > asd = split(className, "_") // 0 = MP; 1 = WEAPON
-    string name
-    if(asd[0] == "MP" && !player.IsTitan()){
-        name = "WPN"
-        for(int i = 2; i < asd.len(); i += 1){
-            name += "_" + asd[i].toupper()
-        }
-        name += "_SHORT"
-    } 
-    else if (asd[1] == "TITANABILITY"){
-        /*name = "WPN_TITANABILITY"
-        for(int i = 2; i < asd.len(); i += 1){
-            name += "_" + asd[i].toupper()
-        }
-        printl(name) */
-        name = "TITAN"
-    } 
-    else if(asd[1] == "TITANWEAPON"){
-        /*name = "WPN_TITAN"
-        for(int i = 2; i < asd.len(); i += 1){
-            name += "_" + asd[i].toupper()
-        }*/
-        name = "TITAN"
-    }
-    else {
-        //name = className // debugging :(
-        name = "" // dont show name if it cant be localized // TODO: localize this shit ughhh
-    }
-    RuiSetString(weaponNameRui, "msgText", name)
+    string weaponClassName = activeWeapon.GetWeaponClassName();
+    string weaponName = GetWeaponInfoFileKeyField_GlobalString( weaponClassName, "shortprintname" )
+    RuiSetString(weaponNameRui, "msgText", weaponName)
 }
 
 /*
@@ -470,7 +445,7 @@ var function CreateRuiTopo(float positionHorizontal, float positionVertical, flo
         COCKPIT_RUI_RADIUS, 
         COCKPIT_RUI_WIDTH*hudWidth, 
         COCKPIT_RUI_HEIGHT*hudHeight, 
-        COCKPIT_RUI_SUBDIV*3 
+        3.5 // 3.5
     )
     return topo
 }
