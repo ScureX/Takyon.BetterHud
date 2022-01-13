@@ -3,7 +3,7 @@
 	"Description": "that cool lookin hud thing",
 	"LoadPriority": 2,
 	"RequiredOnClient": false,
-	"Version": "2.1.1-alpha",
+	"Version": "2.1.2-alpha",
 	
 	"Scripts": [
 		{
