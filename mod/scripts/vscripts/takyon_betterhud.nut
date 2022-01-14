@@ -328,16 +328,14 @@ void function betterhudMain(var speedRui, var ammoRui, var hudRui, var weaponNam
             entity ability = player.GetOffhandWeapon(OFFHAND_SPECIAL)
             // Grapple is fucking shit
             float maxGrapplePower = 100.0 // TODO this is bad
-            if(ability.GetWeaponClassName() == "mp_ability_grapple"){
-                if(offhand != null){
+            if(offhand != null && ability != null){
+                if(ability.GetWeaponClassName() == "mp_ability_grapple"){
                     RuiTopology_UpdateSphereArcs( abilityBarSecondaryTopo, 
                     COCKPIT_RUI_WIDTH*settingsAbilityBarHud.hudWidth, 
                     (COCKPIT_RUI_HEIGHT*(settingsAbilityBarHud.hudHeight*player.GetSuitGrapplePower()/maxGrapplePower)), 
                     COCKPIT_RUI_SUBDIV )
                 }
-            }
-            else {
-                if(offhand != null){
+                else {
                     RuiTopology_UpdateSphereArcs( abilityBarSecondaryTopo, 
                     COCKPIT_RUI_WIDTH*settingsAbilityBarHud.hudWidth, 
                     (COCKPIT_RUI_HEIGHT*(settingsAbilityBarHud.hudHeight*ability.GetWeaponPrimaryClipCount()/ability.GetWeaponPrimaryClipCountMax())), 
