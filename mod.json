@@ -1,9 +1,9 @@
 {
 	"Name": "Takyon.BetterHud",
-	"Description": "that cool lookin hud thing",
+	"Description": "Takyons fully customizable HUD featuring a speedometer, ammo counter and ability bars! This is not finished and some issues are known. For Errors message me on Discord: Takyon Scure#6969",
 	"LoadPriority": 2,
 	"RequiredOnClient": false,
-	"Version": "2.1.3-alpha",
+	"Version": "v2.1.3",
 	
 	"Scripts": [
 		{
